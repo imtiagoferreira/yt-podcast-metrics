@@ -156,38 +156,61 @@ def fetch_data_api_metrics(creds):
 #  YOUTUBE ANALYTICS API — Private metrics
 # ============================================================
 
-def fetch_analytics_metrics(creds):
+def fetch_analytics_metrics(creds, video_ids):
     """Fetch avg watch time, retention rate, and CTR from YouTube Analytics API."""
     yta = build('youtubeAnalytics', 'v2', credentials=creds)
 
     # End date = 3 days ago (data latency buffer)
     end_date = (datetime.utcnow() - timedelta(days=3)).strftime('%Y-%m-%d')
 
-    response = yta.reports().query(
-        ids='channel==MINE',
-        startDate=START_DATE,
-        endDate=end_date,
-        metrics='views,averageViewDuration,averageViewPercentage,videoThumbnailImpressions,videoThumbnailImpressionsClickRate',
-        filters='creatorContentType==VIDEO_ON_DEMAND',
-    ).execute()
-
-    # The response returns a single aggregated row when no dimensions are specified
-    rows = response.get('rows', [])
-    if not rows:
+    if not video_ids:
         return {
             'avgWatchTimeSec': 0,
             'avgRetentionPercent': 0,
             'avgCTRPercent': 0,
         }
 
-    # Column order matches the metrics parameter order
-    # [views, averageViewDuration, averageViewPercentage, impressions, CTR]
-    row = rows[0]
+    # Query per-video analytics using video as a dimension
+    response = yta.reports().query(
+        ids='channel==MINE',
+        startDate=START_DATE,
+        endDate=end_date,
+        metrics='views,averageViewDuration,averageViewPercentage,videoThumbnailImpressions,videoThumbnailImpressionsClickRate',
+        dimensions='video',
+        sort='-views',
+        maxResults=200,
+    ).execute()
+
+    # Filter rows to only our long-form video IDs
+    # Column order: [videoId, views, avgViewDuration, avgViewPercentage, impressions, CTR]
+    rows = response.get('rows', [])
+    video_id_set = set(video_ids)
+    matching_rows = [r for r in rows if r[0] in video_id_set]
+
+    if not matching_rows:
+        return {
+            'avgWatchTimeSec': 0,
+            'avgRetentionPercent': 0,
+            'avgCTRPercent': 0,
+        }
+
+    # Calculate view-weighted averages
+    total_views = sum(r[1] for r in matching_rows)
+    if total_views > 0:
+        avg_duration = sum(r[1] * r[2] for r in matching_rows) / total_views
+        avg_retention = sum(r[1] * r[3] for r in matching_rows) / total_views
+    else:
+        avg_duration = sum(r[2] for r in matching_rows) / len(matching_rows)
+        avg_retention = sum(r[3] for r in matching_rows) / len(matching_rows)
+
+    total_impressions = sum(r[4] for r in matching_rows)
+    total_clicks = sum(r[4] * r[5] for r in matching_rows)
+    avg_ctr = (total_clicks / total_impressions * 100) if total_impressions > 0 else 0
 
     return {
-        'avgWatchTimeSec': round(row[1], 1),            # seconds
-        'avgRetentionPercent': round(row[2], 1),         # percentage
-        'avgCTRPercent': round(row[4] * 100, 2) if row[4] < 1 else round(row[4], 2),
+        'avgWatchTimeSec': round(avg_duration, 1),
+        'avgRetentionPercent': round(avg_retention, 1),
+        'avgCTRPercent': round(avg_ctr, 2),
     }
 
 
@@ -207,7 +230,7 @@ def main():
     print(f"   Avg comments: {data_metrics['avgComments']}")
 
     print("📈 Fetching YouTube Analytics API metrics...")
-    analytics_metrics = fetch_analytics_metrics(creds)
+    analytics_metrics = fetch_analytics_metrics(creds, data_metrics['videoIds'])
     print(f"   Avg watch time: {analytics_metrics['avgWatchTimeSec']}s")
     print(f"   Avg retention: {analytics_metrics['avgRetentionPercent']}%")
     print(f"   Avg CTR: {analytics_metrics['avgCTRPercent']}%")
