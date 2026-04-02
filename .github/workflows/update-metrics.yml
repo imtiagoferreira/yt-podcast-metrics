@@ -6,10 +6,15 @@
 # GitHub Pages serves the JSON file publicly.
 #
 # Required GitHub Secrets:
-#   YOUTUBE_REFRESH_TOKEN  - from 01_authorize.py
-#   YOUTUBE_CLIENT_ID      - from 01_authorize.py
-#   YOUTUBE_CLIENT_SECRET  - from 01_authorize.py
-#   SUBSCRIBERS_ON_JAN1    - your sub count on Jan 1, 2026
+#   YOUTUBE_REFRESH_TOKEN    - from 01_authorize.py
+#   YOUTUBE_CLIENT_ID        - from 01_authorize.py
+#   YOUTUBE_CLIENT_SECRET    - from 01_authorize.py
+#   SUBSCRIBERS_ON_JAN1      - your sub count on Jan 1, 2026
+#   BASELINE_AVG_VIEWS       - from 02_fetch_baseline.py
+#   BASELINE_AVG_COMMENTS    - from 02_fetch_baseline.py
+#   BASELINE_AVG_WATCH_TIME  - from 02_fetch_baseline.py
+#   BASELINE_AVG_RETENTION   - from 02_fetch_baseline.py
+#   BASELINE_AVG_CTR         - from 02_fetch_baseline.py
 # ============================================================
 
 name: Update YouTube Metrics
@@ -48,12 +53,17 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           SUBSCRIBERS_ON_JAN1: ${{ secrets.SUBSCRIBERS_ON_JAN1 }}
+          BASELINE_AVG_VIEWS: ${{ secrets.BASELINE_AVG_VIEWS }}
+          BASELINE_AVG_COMMENTS: ${{ secrets.BASELINE_AVG_COMMENTS }}
+          BASELINE_AVG_WATCH_TIME: ${{ secrets.BASELINE_AVG_WATCH_TIME }}
+          BASELINE_AVG_RETENTION: ${{ secrets.BASELINE_AVG_RETENTION }}
+          BASELINE_AVG_CTR: ${{ secrets.BASELINE_AVG_CTR }}
         run: python fetch_metrics.py
 
       - name: Commit and push metrics
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add metrics.json baseline.json
+          git add metrics.json
           git diff --staged --quiet || git commit -m "Update YouTube metrics $(date -u +%Y-%m-%d)"
           git push
