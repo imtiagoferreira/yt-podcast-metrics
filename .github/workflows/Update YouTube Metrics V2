@@ -1,0 +1,59 @@
+# ============================================================
+# YouTube Metrics Auto-Updater
+# ============================================================
+# Runs daily at 8:00 AM UTC, fetches all YouTube metrics,
+# writes metrics.json, and commits it to the repo.
+# GitHub Pages serves the JSON file publicly.
+#
+# Required GitHub Secrets:
+#   YOUTUBE_REFRESH_TOKEN  - from 01_authorize.py
+#   YOUTUBE_CLIENT_ID      - from 01_authorize.py
+#   YOUTUBE_CLIENT_SECRET  - from 01_authorize.py
+#   SUBSCRIBERS_ON_JAN1    - your sub count on Jan 1, 2026
+# ============================================================
+
+name: Update YouTube Metrics
+
+on:
+  schedule:
+    # Runs daily at 8:00 AM UTC (data is 2-3 days delayed anyway)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  update-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2
+
+      - name: Fetch YouTube metrics
+        env:
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          SUBSCRIBERS_ON_JAN1: ${{ secrets.SUBSCRIBERS_ON_JAN1 }}
+        run: python fetch_metrics.py
+
+      - name: Commit and push metrics
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add metrics.json baseline.json
+          git diff --staged --quiet || git commit -m "Update YouTube metrics $(date -u +%Y-%m-%d)"
+          git push
