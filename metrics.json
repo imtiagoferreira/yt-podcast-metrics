@@ -3,8 +3,8 @@
   "subscriberGrowth": 715.8,
   "avgViews": 276.3,
   "avgViewsGrowth": 481.7,
-  "avgWatchTimeSec": 464.7,
-  "avgWatchTimeGrowth": -6.4,
+  "avgWatchTimeSec": 464.0,
+  "avgWatchTimeGrowth": -6.5,
   "avgRetentionPercent": 22.4,
   "avgRetentionGrowth": -14.5,
   "avgCTRPercent": 0,
@@ -12,6 +12,6 @@
   "avgComments": 7.3,
   "avgCommentsGrowth": 143.3,
   "videoCount": 3,
-  "updatedAt": "2026-05-17T09:25:22.185242Z",
+  "updatedAt": "2026-05-18T11:33:59.572364Z",
   "startDate": "2026-01-01"
 }
