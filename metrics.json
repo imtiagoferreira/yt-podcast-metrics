@@ -1,8 +1,8 @@
 {
   "subscribers": 232,
   "subscriberGrowth": 1121.1,
-  "avgViews": 291.0,
-  "avgViewsGrowth": 512.6,
+  "avgViews": 291.3,
+  "avgViewsGrowth": 513.3,
   "avgWatchTimeSec": 457.3,
   "avgWatchTimeGrowth": -7.9,
   "avgRetentionPercent": 22.1,
@@ -12,6 +12,6 @@
   "avgComments": 6.7,
   "avgCommentsGrowth": 123.3,
   "videoCount": 3,
-  "updatedAt": "2026-07-12T09:31:46.340699Z",
+  "updatedAt": "2026-07-13T10:45:20.826302Z",
   "startDate": "2026-01-01"
 }
