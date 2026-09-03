@@ -1,10 +1,10 @@
 {
   "subscribers": 233,
   "subscriberGrowth": 1126.3,
-  "avgViews": 296.3,
-  "avgViewsGrowth": 523.8,
-  "avgWatchTimeSec": 455.7,
-  "avgWatchTimeGrowth": -8.2,
+  "avgViews": 297.0,
+  "avgViewsGrowth": 525.3,
+  "avgWatchTimeSec": 456.7,
+  "avgWatchTimeGrowth": -8.0,
   "avgRetentionPercent": 22.0,
   "avgRetentionGrowth": -16.0,
   "avgCTRPercent": 0,
@@ -12,6 +12,6 @@
   "avgComments": 6.7,
   "avgCommentsGrowth": 123.3,
   "videoCount": 3,
-  "updatedAt": "2026-09-02T12:18:04.914836Z",
+  "updatedAt": "2026-09-03T12:15:55.651665Z",
   "startDate": "2026-01-01"
 }
